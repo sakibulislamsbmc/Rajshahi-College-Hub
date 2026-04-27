@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "Notice": {
+      "title": "Notice",
+      "description": "Academic and administrative notices",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "category": { "type": "string", "enum": ["Academic", "Event", "Holiday", "Administrative"] },
+        "author": { "type": "string" }
+      },
+      "required": ["title", "content", "date", "category"]
+    },
+    "News": {
+      "title": "News",
+      "description": "Campus news and updates",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "imageUrl": { "type": "string" }
+      },
+      "required": ["title", "content", "date"]
+    },
+    "Confession": {
+      "title": "Confession",
+      "description": "Anonymous student confessions",
+      "type": "object",
+      "properties": {
+        "content": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "likes": { "type": "number" }
+      },
+      "required": ["content", "date"]
+    },
+    "LostAndFound": {
+      "title": "Lost and Found",
+      "description": "Items lost or found on campus",
+      "type": "object",
+      "properties": {
+        "item": { "type": "string" },
+        "description": { "type": "string" },
+        "contact": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "type": { "type": "string", "enum": ["Lost", "Found"] }
+      },
+      "required": ["item", "description", "contact", "date", "type"]
+    },
+    "Event": {
+      "title": "Event",
+      "description": "Upcoming campus events",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "location": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["title", "date", "location"]
+    }
+  },
+  "firestore": {
+    "/notices/{noticeId}": { "schema": "Notice", "description": "Collection of notices" },
+    "/news/{newsId}": { "schema": "News", "description": "Collection of campus news" },
+    "/confessions/{confessionId}": { "schema": "Confession", "description": "Collection of confessions" },
+    "/lostAndFound/{itemId}": { "schema": "LostAndFound", "description": "Collection of lost and found items" },
+    "/events/{eventId}": { "schema": "Event", "description": "Collection of upcoming events" }
+  }
+}

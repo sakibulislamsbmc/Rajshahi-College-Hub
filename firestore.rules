@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: notices
+    // Fields: title (string), content (string), date (string), category (string), author (string)
+    //
+    // Collection: news
+    // Fields: title (string), content (string), date (string), imageUrl (string)
+    //
+    // Collection: confessions
+    // Fields: content (string), date (string), likes (number)
+    //
+    // Collection: lostAndFound
+    // Fields: item (string), description (string), contact (string), date (string), type (string), uid (string)
+    //
+    // Collection: events
+    // Fields: title (string), date (string), location (string), description (string)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "sakibulislamsbmc@gmail.com" && request.auth.token.email_verified == true);
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function isValidString(val, min, max) {
+      return val is string && val.size() >= min && val.size() <= max;
+    }
+
+    // Notices, News, Events: Public Read, Admin Write
+    match /notices/{noticeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /news/{newsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Confessions: Public Read, Anyone Create, Like Update
+    match /confessions/{confessionId} {
+      allow read: if true;
+      allow create: if isValidString(request.resource.data.content, 1, 1000);
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']) &&
+                    request.resource.data.likes == resource.data.likes + 1;
+    }
+
+    // Lost and Found: Public Read, Auth Create, Owner Write
+    match /lostAndFound/{itemId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if isOwner(resource.data.uid);
+    }
+  }
+}
